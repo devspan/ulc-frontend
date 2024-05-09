@@ -38,52 +38,32 @@ const Footer = () => {
       url: issueUrl,
     },
     {
-      icon: 'social/canny' as const,
+      icon: 'social/telegram' as const,
       iconSize: '20px',
-      text: 'Feature request',
-      url: 'https://blockscout.canny.io/feature-requests',
-    },
-    {
-      icon: 'social/git' as const,
-      iconSize: '18px',
-      text: 'Contribute',
-      url: 'https://github.com/blockscout/blockscout',
+      text: 'Telegram',
+      url: 'https://t.me/ultronexchange',
     },
     {
       icon: 'social/twitter' as const,
       iconSize: '18px',
       text: 'X (ex-Twitter)',
-      url: 'https://www.twitter.com/blockscoutcom',
+      url: 'https://twitter.com/ultronexchange',
     },
     {
-      icon: 'social/discord' as const,
+      icon: 'social/facebook' as const,
       iconSize: '24px',
-      text: 'Discord',
-      url: 'https://discord.gg/blockscout',
+      text: 'Facebook',
+      url: 'https://www.facebook.com/ultronexchange',
     },
     {
-      icon: 'discussions' as const,
+      icon: 'social/instagram' as const,
       iconSize: '20px',
-      text: 'Discussions',
-      url: 'https://github.com/orgs/blockscout/discussions',
-    },
-    {
-      icon: 'donate' as const,
-      iconSize: '20px',
-      text: 'Donate',
-      url: 'https://github.com/sponsors/blockscout',
+      text: 'Instagram',
+      url: 'https://www.instagram.com/ultronexchange/',
     },
   ];
 
   const frontendLink = (() => {
-    if (config.UI.footer.frontendVersion) {
-      return <Link href={ FRONT_VERSION_URL } target="_blank">{ config.UI.footer.frontendVersion }</Link>;
-    }
-
-    if (config.UI.footer.frontendCommit) {
-      return <Link href={ FRONT_COMMIT_URL } target="_blank">{ config.UI.footer.frontendCommit }</Link>;
-    }
-
     return null;
   })();
 
@@ -118,9 +98,9 @@ const Footer = () => {
   const renderProjectInfo = React.useCallback((gridArea?: GridProps['gridArea']) => {
     return (
       <Box gridArea={ gridArea }>
-        <Link fontSize="xs" href="https://www.blockscout.com">blockscout.com</Link>
+        <Link fontSize="xs" href="https://www.ultronsmartchain.io">Ultron Smartchain</Link>
         <Text mt={ 3 } fontSize="xs">
-          Blockscout is a tool for inspecting and analyzing EVM based blockchains. Blockchain explorer for Ethereum Networks.
+          Scan is a tool for inspecting and analyzing Ultron Smartchain.
         </Text>
         <VStack spacing={ 1 } mt={ 6 } alignItems="start">
           { apiVersionUrl && (
