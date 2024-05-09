@@ -1,13 +1,14 @@
-import React from 'react';
+import type { GridProps } from '@chakra-ui/react';
 import { Box, Grid, Flex, Text, Link, VStack, Skeleton } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
-import type { GridProps } from '@chakra-ui/react';
+import React from 'react';
 
 import type { CustomLinksGroup } from 'types/footerLinks';
+
 import config from 'configs/app';
-import type { ResourceError } from 'lib/api/resources';
 import useApiQuery from 'lib/api/useApiQuery';
 import useFetch from 'lib/hooks/useFetch';
+import useIssueUrl from 'lib/hooks/useIssueUrl';
 import NetworkAddToWallet from 'ui/shared/NetworkAddToWallet';
 
 import FooterLinkItem from './FooterLinkItem';
@@ -15,11 +16,24 @@ import IntTxsIndexingStatus from './IntTxsIndexingStatus';
 
 const MAX_LINKS_COLUMNS = 4;
 
+const BLOCKSCOUT_LINKS = [
+    {
+    },
+  ];
+
 const Footer = () => {
+
+  const { data: backendVersionData } = useApiQuery('config_backend_version', {
+    queryOptions: {
+      staleTime: Infinity,
+    },
+  });
+  const issueUrl = useIssueUrl(backendVersionData?.backend_version);
+
   const fetch = useFetch();
 
   const { isPlaceholderData, data: linksData } = useQuery<unknown, ResourceError<unknown>, Array<CustomLinksGroup>>({
-    queryKey: ['footer-links'],
+    queryKey: [ 'footer-links' ],
     queryFn: async() => fetch(config.UI.footer.links || '', undefined, { resource: 'footer-links' }),
     enabled: Boolean(config.UI.footer.links),
     staleTime: Infinity,
@@ -31,16 +45,27 @@ const Footer = () => {
   const renderNetworkInfo = React.useCallback((gridArea?: GridProps['gridArea']) => {
     return (
       <Flex
-        gridArea={gridArea}
+        gridArea={ gridArea }
         flexWrap="wrap"
-        columnGap={8}
-        rowGap={6}
+        columnGap={ 8 }
+        rowGap={ 6 }
         mb={{ base: 5, lg: 10 }}
         _empty={{ display: 'none' }}
       >
-        {!config.UI.indexingAlert.intTxs.isHidden && <IntTxsIndexingStatus/>}
+        { !config.UI.indexingAlert.intTxs.isHidden && <IntTxsIndexingStatus/> }
         <NetworkAddToWallet/>
       </Flex>
+    );
+  }, []);
+
+  const renderProjectInfo = React.useCallback((gridArea?: GridProps['gridArea']) => {
+    return (
+      <Box gridArea={ gridArea }>
+        <Link fontSize="xs" href="https://scan.ultronsmartchain.io">UltronScan</Link>
+        <Text mt={ 3 } fontSize="xs">
+          UltronScan is the Blockchain explorer for Ultron SmartChain.
+        </Text>
+      </Box>
     );
   }, []);
 
@@ -59,6 +84,7 @@ const Footer = () => {
       <Grid { ...containerProps }>
         <div>
           { renderNetworkInfo() }
+          { renderProjectInfo() }
         </div>
 
         <Grid
@@ -73,14 +99,15 @@ const Footer = () => {
         >
           {
             ([
+              { title: 'Blockscout', links: BLOCKSCOUT_LINKS },
               ...(linksData || []),
             ])
               .slice(0, colNum)
               .map(linkGroup => (
                 <Box key={ linkGroup.title }>
-                  <Skeleton fontWeight={500} mb={3} display="inline-block" isLoaded={!isPlaceholderData}>{linkGroup.title}</Skeleton>
-                  <VStack spacing={1} alignItems="start">
-                    {linkGroup.links.map(link => <FooterLinkItem {...link} key={link.text} isLoading={isPlaceholderData}/>)}
+                  <Skeleton fontWeight={ 500 } mb={ 3 } display="inline-block" isLoaded={ !isPlaceholderData }>{ linkGroup.title }</Skeleton>
+                  <VStack spacing={ 1 } alignItems="start">
+                    { linkGroup.links.map(link => <FooterLinkItem { ...link } key={ link.text } isLoading={ isPlaceholderData }/>) }
                   </VStack>
                 </Box>
               ))
@@ -91,8 +118,39 @@ const Footer = () => {
   }
 
   return (
-    <Grid { ...containerProps } justifyContent="center" alignContent="center">
-      <Text>No custom links configured.</Text>
+    <Grid
+      { ...containerProps }
+      gridTemplateAreas={{
+        lg: `
+          "network links-top"
+          "info links-bottom"
+        `,
+      }}
+    >
+
+      { renderNetworkInfo({ lg: 'network' }) }
+      { renderProjectInfo({ lg: 'info' }) }
+
+      <Grid
+        gridArea={{ lg: 'links-bottom' }}
+        gap={ 1 }
+        gridTemplateColumns={{
+          base: 'repeat(auto-fill, 160px)',
+          lg: 'repeat(3, 160px)',
+          xl: 'repeat(4, 160px)',
+        }}
+        gridTemplateRows={{
+          base: 'auto',
+          lg: 'repeat(3, auto)',
+          xl: 'repeat(2, auto)',
+        }}
+        gridAutoFlow={{ base: 'row', lg: 'column' }}
+        alignContent="start"
+        justifyContent={{ lg: 'flex-end' }}
+        mt={{ base: 8, lg: 0 }}
+      >
+        { BLOCKSCOUT_LINKS.map(link => <FooterLinkItem { ...link } key={ link.text }/>) }
+      </Grid>
     </Grid>
   );
 };
